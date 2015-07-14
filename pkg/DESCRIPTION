@@ -3,7 +3,7 @@ Type: Package
 Title: Color Science methods and data
 Version: 1.0.1
 Encoding: UTF-8
-Maintainer: Jose Gama <jgama@abo.fi>
+Maintainer: Jose Gama <rxprtgama@gmail.com>
 Authors@R: c(person(given = "Jose", family = "Gama", role = c("aut","cre"),email = "rxprtgama@gmail.com"))
 Description: Methods and data for color science - color conversions by observer,
         illuminant and gamma. Color matching functions and chromaticity diagrams.
