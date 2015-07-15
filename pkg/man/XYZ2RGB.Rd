@@ -13,13 +13,14 @@
   \item{illuminant}{ illuminant}
   \item{observer}{ observer}
   \item{RefWhite}{ Reference White}
-  \item{RGBModel}{ RGB model}
-  \item{RefWhiteRGB}{ Reference White point RGB}
-  \item{gamma}{ gamma}
-  \item{RefWhiteIllum}{ Reference White illuminant}
-  \item{CAT}{ CAT method}
-  \item{CATarray}{ Chromatic Adaptation}
+  \item{RGBModel}{RGB model}
+  \item{RefWhiteRGB}{white points for RGB model}
+  \item{gamma}{gamma}
+  \item{RefWhiteIllum}{Reference perfect reflecting diffuser}
+  \item{CAT}{CAT}
+  \item{CATarray}{Chromatic Adaptation}
 }
+
 \value{
   CIE RGB coordinates
 }

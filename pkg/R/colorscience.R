@@ -1,18 +1,495 @@
-# Correlated Color Temperature methods: McCamy, Hernandez-Andres et al. and Robertson.
 
 
-# @book{kang2006computational,
-#   title={Computational color technology},
-#   author={Kang, Henry R},
-#   year={2006},
-#   publisher={Spie Press Bellingham}
+# David H. Brainard
+# Cone Contrast and Opponent Modulation Color Spaces
+# pp. 563
+# PART IV: CONE CONTRAST AND
+# OPPONENT MODULATION COLOR SPACES
+# DKL Example
+# 7/6/95 dhb Wrote it.
+# September 2014 Jose Gama converted the code to R
+LMS2DKL<-function(bg,diffcone.coords,DKL2LMS=FALSE){
+# bg= the background vector for the conversion
+# diffcone.coords = the vector we wish to convert
+# STEP 1, 2: GET bg and diffcone.coords
+# STEP 3: Set M.raw as in equation A.4.9.
+# This is found by inserting the background
+# values into equation A.4.8. Different
+# backgrounds produce different matrices.
+# The MATLAB notation below just
+# fills the desired 3-by-3 matrix.
+M.raw <- matrix(c(1,1,0,1,-bg[1]/bg[2],0,-1,-1,(bg[1]+bg[2])/bg[3]),3,3,byrow=TRUE)
+# STEP 4: Compute the inverse of M for
+# equation A.4.10. The MATLAB inv() function
+# computes the matrix inverse of its argument.
+M.raw.inv <- solve(M.raw)
+# STEP 5: Find the three isolating stimuli as
+# the columns of M.inv.raw. The MATLAB
+# notation X[,i] extracts the i-th column
+# of the matrix X.
+isochrom.raw <- M.raw.inv[,1]
+rgisolum.raw <- M.raw.inv[,2]
+sisolum.raw <- M.raw.inv[,3]
+# STEP 6: Find the pooled cone contrast of each
+# of these. The MATLAB norm() function returns
+# the vector length of its argument. The MATLAB
+# / operation represents entry-by-entry division.
+isochrom.raw.pooled <- norm(isochrom.raw / bg,'f')
+rgisolum.raw.pooled <- norm(rgisolum.raw / bg,'f')
+sisolum.raw.pooled <- norm(sisolum.raw / bg,'f')
+# STEP 7: Scale each mechanism isolating
+# modulation by its pooled contrast to obtain
+# mechanism isolating modulations that have
+# unit length.
+isochrom.unit <-  matrix(isochrom.raw/ isochrom.raw.pooled)
+rgisolum.unit <-  matrix(rgisolum.raw/ rgisolum.raw.pooled)
+sisolum.unit <- matrix(sisolum.raw / sisolum.raw.pooled)
+# STEP 8: Compute the values of the normalizing
+# constants by plugging t~e unit isolating stimuli
+# into A.4.9 and seeing what we get. Each vector
+# should have only one non-zero entry. The size
+# of the entry is the response of the unscaled
+# mechanism to the stimulus that should give unit
+# response.
+lum.resp.raw <- M.raw %*% isochrom.unit
+l.minus.m.resp.raw <- M.raw %*% rgisolum.unit
+s.minus.lum.resp.raw <- M.raw %*% sisolum.unit
+# STEP 9: We need to rescale the rows of M.raw
+# so that we get unit response. This means
+# mUltiplying each row of M.raw by a constant.
+# The easiest way to accomplish the multiplication
+# is to form a diagonal matrix with the desired
+# scalars on the diagonal. These scalars are just
+# the multiplicative inverses of the non-zero
+# entries of the vectors obtained in the previous
+# step. The resulting matrix M provides the
+# entries of A.4.11. The three .resp vectors
+# computed should be the three unit vectors
+# (and they are).
+D.rescale <- matrix(c(1/lum.resp.raw[1],0,0,0,1/l.minus.m.resp.raw[2],0,0,0,1/s.minus.lum.resp.raw[3]),3,3,byrow=TRUE)
+M <- D.rescale %*% M.raw
+lum.resp <- M %*% isochrom.unit
+l.minus.m.resp <- M %*% rgisolum.unit
+s.minus.lum.resp <- M %*% sisolum.unit
+# STEP 10: Compute the inverse of M to obtain
+# the matrix in equation A.4.12.
+if (!DKL2LMS) {
+M.inv <- solve(M)
+M<-M.inv
+}
+# STEP 11: Multiply the vector we wish to
+# convert byM to obtain its DKL coordinates.
+DKL.coords <- M %*% diffcone.coords
+# STEP 12: convert to spherical coordinates.
+# According to the conventions in the original DKL
+# paper, azimuth of 0 is along our rgisolum axis,
+# azimuth of 90 is along our negative sisolum
+# axis. The isochromatic axis has an elevation
+# of 90 degrees. To do the conversion. we flip the
+# sign of the sisolum coordinate and then do a
+# standard conversion to polar coordinates .
+RADS.TO.DEGS <- 360/(2*pi)
+azimuth.rads <- atan(mrdivide(-DKL.coords[3], DKL.coords[2]))
+isolum.len <- sqrt(DKL.coords[2]^2 + DKL.coords[3]^2)
+elevation.rads <- atan(mrdivide(DKL.coords[1], isolum.len))
+azimuth <- RADS.TO.DEGS %*% azimuth.rads
+elevation <- RADS.TO.DEGS %*% elevation.rads
+list(azimuth.rads=azimuth.rads,isolum.len=isolum.len,elevation.rads=elevation.rads,azimuth=azimuth,elevation=elevation)
+}
+
+XYZtoRGB<-function(xc,yc,zc, ColorSystem=c(0.67,0.33,0.21,0.71,0.14,0.08,0.310,0.316)){
+# simplified XYZ to RGB conversion, mostly for plots
+xr <- ColorSystem[1]
+yr <- ColorSystem[2]
+zr <- 1.0 - xr - yr
+xg <- ColorSystem[3]
+yg <- ColorSystem[4]
+zg <- 1.0 - xg - yg
+xb <- ColorSystem[5]
+yb <- ColorSystem[6]
+zb <- 1.0 - xb - yb
+d <- xr*yg*zb - xg*yr*zb - xr*yb*zg + xb*yr*zg + xg*yb*zr - xb*yg*zr
+R <- (-xg*yc*zb + xc*yg*zb + xg*yb*zc - xb*yg*zc - xc*yb*zg + xb*yc*zg) / d
+G <- ( xr*yc*zb - xc*yr*zb - xr*yb*zc + xb*yr*zc + xc*yb*zr - xb*yc*zr) / d
+B <- ( xr*yg*zc - xg*yr*zc - xr*yc*zg + xc*yr*zg + xg*yc*zr - xc*yg*zr) / d
+cbind(R,G,B)
+}
+
+chromaticity.diagram<-function(chromaticityCoordinates=cccie31, conversionFunction=NULL,...){
+# plot the chromaticity diagram AKA "horse shoe"
+# conversionFunction CIE1931XYZ2CIE1976uv
+pLen<-length(chromaticityCoordinates[["wlnm"]])
+n=seq(1,pLen,by=1)
+x<-chromaticityCoordinates$x[n]
+y<-chromaticityCoordinates$y[n]
+if (!is.null(conversionFunction)) if (is.function(conversionFunction)) {
+z<-conversionFunction(cbind(chromaticityCoordinates$x[n],chromaticityCoordinates$y[n],chromaticityCoordinates$z[n]))
+x<-z[,1]
+y<-z[,2]
+}
+dots <-  list(...)
+nameDots<-names(dots)
+lNameDot<-length(dots)>0
+if (!lNameDot) dots <- modifyList(dots, list(x=x,y=y,type='l')) else dots <- modifyList(dots, list(x=x,y=y ))
+if (!(any(nameDots=='xlab'))) dots <- modifyList(dots, list(xlab='x'))
+if (!(any(nameDots=='ylab'))) dots <- modifyList(dots, list(ylab='y'))
+if (!(any(nameDots=='type'))) dots <- modifyList(dots, list(type='l'))
+do.call(plot, dots ) # horseshoe
+segments(x[1],y[1],x[pLen],y[pLen]) # line
+}
+
+Maxwell.triangle<-function(primariesRGB=whitepointsRGB, conversionFunction=NULL,...){
+# plot the Maxwell triangle
+# conversionFunction CIE1931XYZ2CIE1976uv
+x<-as.numeric(primariesRGB[1,c('xRed','xGreen','xBlue')])
+y<-as.numeric(primariesRGB[1,c('yRed','yGreen','yBlue')])
+if (!is.null(conversionFunction)) if (is.function(conversionFunction)) {
+z<-1-x-y
+z<-conversionFunction(cbind(x,y,z))
+x<-z[,1]
+y<-z[,2]
+}
+dots <- list(...)
+nameDots<-names(dots)
+lNameDot<-length(dots)>0
+if (!lNameDot) dots <- modifyList(dots, list(x=c(x,x[1]),y=c(y,y[1]),type='l')) else dots <- modifyList(dots, list(x=c(x,x[1]),y=c(y,y[1])))
+if (!(any(nameDots=='xlab'))) dots <- modifyList(dots, list(xlab='x'))
+if (!(any(nameDots=='ylab'))) dots <- modifyList(dots, list(ylab='y'))
+if (!(any(nameDots=='type'))) dots <- modifyList(dots, list(type='l'))
+do.call(plot, dots )
+}
+
+chromaticity.diagram.color<-function(chromaticityCoordinates=cccie31, conversionFunction=NULL,granularity=10,...){
+# plot the chromaticity diagram AKA "horse shoe"
+# conversionFunction CIE1931XYZ2CIE1976uv
+pLen<-length(chromaticityCoordinates[["wlnm"]])
+n=seq(1,pLen,by=1)
+wlnmVector<-seq(chromaticityCoordinates[1,"wlnm"],chromaticityCoordinates[pLen,"wlnm",],by=1/granularity)
+pLen2<-length(wlnmVector)
+XYZ<-matrix(unlist(wlnm2xyz(wlnmVector)),ncol=3,byrow=FALSE)
+x<-XYZ[,1]
+y<-XYZ[,2]
+z<-XYZ[,3]
+X<-x
+Y<-y
+Z<-z
+if (!is.null(conversionFunction)) if (is.function(conversionFunction)) {
+az<-conversionFunction(cbind(x,y,z))
+x<-az[,1]
+y<-az[,2]
+z<-1-x-y
+}
+temp<-XYZtoRGB(X,Y,Z)/255
+t1<-temp/max(temp)*255
+t1<-round(t1)
+t1[which(t1<0)]<-0
+t2<-apply(t1,1,function(x) sprintf("#%02X%02X%02X",x[1],x[2],x[3]))
+dots <- list(...)
+nameDots<-names(dots)
+lNameDot<-length(dots)>0
+if (!lNameDot) dots <- modifyList(dots, list(x=x,y=y,type='p')) else dots <- modifyList(dots, list(x=x,y=y))
+if (!(any(nameDots=='xlab'))) dots <- modifyList(dots, list(xlab='x'))
+if (!(any(nameDots=='ylab'))) dots <- modifyList(dots, list(ylab='y'))
+if (!(any(nameDots=='xlim'))) dots <- modifyList(dots, list(xlim=0:1))
+if (!(any(nameDots=='ylim'))) dots <- modifyList(dots, list(ylim=0:1))
+if (!(any(nameDots=='col'))) dots <- modifyList(dots, list(col=t2))
+if (!(any(nameDots=='pch'))) dots <- modifyList(dots, list(pch=20))
+if (!(any(nameDots=='type'))) dots <- modifyList(dots, list(type='p'))
+do.call(plot, dots );par(new=TRUE)
+#line
+x1<-seq(x[1],x[pLen2],length.out=pLen2/7)#
+y1<-seq(y[1],y[pLen2],length.out=pLen2/7)#
+X1<-seq(X[1],X[pLen2],length.out=pLen2/7)#
+Y1<-seq(Y[1],Y[pLen2],length.out=pLen2/7)#
+temp<-XYZtoRGB(X1,Y1,1-X1-Y1)/255
+t1<-temp/max(temp)*255
+t1<-round(t1)
+t1[which(t1<0)]<-0
+t2<-apply(t1,1,function(x) sprintf("#%02X%02X%02X",x[1],x[2],x[3]))
+dots <- modifyList(dots, list(x=x1))
+dots <- modifyList(dots, list(y=y1))
+dots <- modifyList(dots, list(col=t2))
+do.call(plot, dots )
+}
+
+Maxwell.triangle.color<-function(primariesRGB=whitepointsRGB, conversionFunction=NULL,granularity=10,...){
+# Maxwell triangle
+# conversionFunction CIE1931XYZ2CIE1976uv
+pLen<-100
+n=seq(1,pLen,by=1)
+x<-as.numeric(primariesRGB[1,c('xRed','xGreen','xBlue')])
+y<-as.numeric(primariesRGB[1,c('yRed','yGreen','yBlue')])
+x1<-seq(x[1],x[2],length.out=pLen)
+y1<-seq(y[1],y[2],length.out=pLen)
+x2<-seq(x[1],x[3],length.out=pLen)
+y2<-seq(y[1],y[3],length.out=pLen)
+x3<-seq(x[2],x[3],length.out=pLen)
+y3<-seq(y[2],y[3],length.out=pLen)
+x<-c(x1,x2,x3)
+y<-c(y1,y2,y3)
+z<-1-x-y
+X<-x
+Y<-y
+Z<-z
+if (!is.null(conversionFunction)) if (is.function(conversionFunction)) {
+z<-conversionFunction(cbind(x,y,z))
+x<-z[,1]
+y<-z[,2]
+}
+temp<-XYZtoRGB(X,Y,Z)/255
+t1<-temp/max(temp)*255
+t1<-round(t1)
+t1[which(t1<0)]<-0
+t2<-apply(t1,1,function(x) sprintf("#%02X%02X%02X",x[1],x[2],x[3]))
+dots <- list(...)
+nameDots<-names(dots)
+lNameDot<-length(dots)>0
+if (!lNameDot) dots <- modifyList(dots, list(x=x,y=y,type='p')) else dots <- modifyList(dots, list(x=x,y=y))
+if (!(any(nameDots=='xlab'))) dots <- modifyList(dots, list(xlab='x'))
+if (!(any(nameDots=='ylab'))) dots <- modifyList(dots, list(ylab='y'))
+if (!(any(nameDots=='xlim'))) dots <- modifyList(dots, list(xlim=0:1))
+if (!(any(nameDots=='ylim'))) dots <- modifyList(dots, list(ylim=0:1))
+if (!(any(nameDots=='col'))) dots <- modifyList(dots, list(col=t2))
+if (!(any(nameDots=='pch'))) dots <- modifyList(dots, list(pch=20))
+if (!(any(nameDots=='type'))) dots <- modifyList(dots, list(type='p'))
+do.call(plot, dots)
+}
+
+Maxwell.triangle.color.fill<-function(chromaticityCoordinates=cccie31, conversionFunction=NULL,granularity=10,...){
+# plot the Maxwell triangle
+# conversionFunction CIE1931XYZ2CIE1976uv
+pLen<-length(chromaticityCoordinates[["wlnm"]])
+n=seq(1,pLen,by=1)
+wlnmVector<-seq(chromaticityCoordinates[1,"wlnm"],chromaticityCoordinates[pLen,"wlnm",],by=1/granularity)
+pLen2<-length(wlnmVector)
+XYZ<-matrix(unlist(wlnm2xyz(wlnmVector)),ncol=3,byrow=FALSE)
+x<-XYZ[,1]
+y<-XYZ[,2]
+z<-XYZ[,3]
+X<-x
+Y<-y
+Z<-z
+if (!is.null(conversionFunction)) if (is.function(conversionFunction)) {
+az<-conversionFunction(cbind(x,y,z))
+x<-az[,1]
+y<-az[,2]
+}
+maxx<-max(x)
+maxy<-max(y)
+minx<-min(x)
+miny<-min(y)
+pLen2<-10*granularity;k=1
+mx<-seq(minx,maxx, length.out=pLen2)
+my<-seq(miny,maxy, length.out=pLen2)
+p2<-matrix(0,pLen2^2,2)
+p3<-vector(mode='character',pLen2^2)
+for (n in 1:pLen2)# triangle
+for (m in 1:pLen2){
+   XC=mx[m]
+   YC=my[n]
+   ZC=1-XC-YC
+   if (!is.null(conversionFunction)) if (is.function(conversionFunction)) {
+az<-conversionFunction(cbind(XC,YC,ZC))
+XC<-az[,1]
+YC<-az[,2]
+ZC=1-XC-YC
+}
+   temp<-XYZtoRGB(mx[m],my[n],1-mx[m]-my[n])/255
+t1<-temp/max(temp)*255
+t1<-round(t1)
+if (any(t1<0)) t2<-NA else t2<-apply(t1,1,function(x) sprintf("#%02X%02X%02X",x[1],x[2],x[3]))
+   p2[k,1]<- XC
+   p2[k,2]<- YC
+   p3[k]<- t2
+   k<-k+1
+}
+dots <- list(...)
+nameDots<-names(dots)
+lNameDot<-length(dots)>0
+if (!lNameDot) dots <- modifyList(dots, list(x=p2[,1],y=p2[,2],col=p3,type='p')) else dots <- modifyList(dots, list(x=p2[,1],y=p2[,2],col=p3))
+if (!(any(nameDots=='xlab'))) dots <- modifyList(dots, list(xlab='x'))
+if (!(any(nameDots=='ylab'))) dots <- modifyList(dots, list(ylab='y'))
+if (!(any(nameDots=='xlim'))) dots <- modifyList(dots, list(xlim=0:1))
+if (!(any(nameDots=='ylim'))) dots <- modifyList(dots, list(ylim=0:1))
+if (!(any(nameDots=='col'))) dots <- modifyList(dots, list(col=p3))
+if (!(any(nameDots=='pch'))) dots <- modifyList(dots, list(pch=15))
+if (!(any(nameDots=='type'))) dots <- modifyList(dots, list(type='p'))
+do.call(plot, dots );par(new=TRUE)
+}
+
+chromaticity.diagram.color.fill<-function(chromaticityCoordinates=cccie31, conversionFunction=NULL,granularity=10, conversionFunctionInv=NULL,...){
+# plot the chromaticity diagram AKA "horse shoe"
+# conversionFunction CIE1931XYZ2CIE1976uv
+pLen<-length(chromaticityCoordinates[["wlnm"]])
+#n=seq(1,pLen,by=1)
+wlnmVector<-seq(chromaticityCoordinates[1,"wlnm"],chromaticityCoordinates[pLen,"wlnm",],by=1/granularity)
+pLen2<-length(wlnmVector)
+XYZ<-matrix(unlist(wlnm2xyz(wlnmVector)),ncol=3,byrow=FALSE)
+x<-XYZ[,1]
+y<-XYZ[,2]
+z<-XYZ[,3]
+X<-x
+Y<-y
+Z<-z
+if (is.function(conversionFunction)) {
+if (!is.function(conversionFunctionInv)){
+mystrfun<-as.character(substitute(conversionFunction))
+if (mystrfun=='CIE1931xy2CIE1976uv') conversionFunctionInv<-CIE1976uv2CIE1931xy
+if (mystrfun=='CIE1931xy2CIE1960uv') conversionFunctionInv<-CIE1960uv2CIE1931xy
+if (mystrfun=='CIE1976uv2CIE1931xy') conversionFunctionInv<-CIE1931xy2CIE1976uv
+if (mystrfun=='CIE1960uv2CIE1931xy') conversionFunctionInv<-CIE1931xy2CIE1960uv
+}
+az<-conversionFunction(cbind(x,y,z))
+x<-az[,1]
+y<-az[,2]
+}
+boundariesXY<-cbind(x,y)
+#line
+#x1<-seq(x[1],x[length(x)],length.out=pLen2)
+#y1<-seq(y[1],y[length(y)],length.out=pLen2)
+#limits
+maxx<-max(X)
+maxy<-max(Y)
+minx<-min(X)
+miny<-min(Y)
+pLen2<-10*granularity;k=1
+dots <- list(...)
+nameDots<-names(dots)
+lNameDot<-length(dots)>0
+boolDots<-FALSE
+if ((any(nameDots=='xlim'))) { minx<-dots$xlim[1]
+maxx<-dots$xlim[2]
+boolDots<-TRUE
+}
+if ((any(nameDots=='ylim'))) { miny<-dots$ylim[1]
+maxy<-dots$ylim[2]
+boolDots<-TRUE
+}
+containedInTheHorseShoe<-FALSE
+if (boolDots){
+if (is.function(conversionFunctionInv)){
+minx<-conversionFunctionInv(c(minx, miny))[1]
+maxx<-conversionFunctionInv(c(maxx, maxy))[1]
+miny<-conversionFunctionInv(c(minx, miny))[2]
+maxy<-conversionFunctionInv(c(maxx, maxy))[2]
+}
+# are xlim, ylim contained in the horse shoe?
+if (all(point.in.polygon(c(minx, maxx, maxx, minx),c(miny, maxy, miny, maxy),boundariesXY[,1],boundariesXY[,2]))) containedInTheHorseShoe<-TRUE
+else { # 
+maxx<-max(X)
+maxy<-max(Y)
+minx<-min(X)
+miny<-min(Y)
+}
+}
+mx<-seq(minx,maxx, length.out=pLen2)
+pLen3<-round(pLen2 /( (maxx-minx)/(maxy-miny) ))
+my<-seq(miny,maxy, length.out=pLen3)
+# p2<-matrix(0,pLen2*pLen3,2)
+# p3<-vector(mode='character',pLen2*pLen3)
+# for (n in 1:pLen3)# Horse Shoe
+# for (m in 1:pLen2){
+#    XC=mx[m]
+#    YC=my[n]
+#    ZC=1-XC-YC
+#    if (!is.null(conversionFunction)) if (is.function(conversionFunction)) {
+# az<-conversionFunction(cbind(XC,YC,ZC))
+# XC<-az[,1]
+# YC<-az[,2]
+# ZC=1-XC-YC
 # }
+# temp<-XYZtoRGB(mx[m],my[n],1-mx[m]-my[n])/255
+# t1<-temp/max(temp)*255
+# t1<-round(t1)
+# 
+# #boundariesXY<-rbind(boundariesXY,cbind(x1,y1))
+# #boundariesXY<-rbind(boundariesXY,boundariesXY[1,])
+# if (any(t1<0)) t1[which(t1<0)]<-1
+# #if (!in.out(boundariesXY,cbind(XC,YC))) t2<-NA else t2<-apply(t1,1,function(x) sprintf("#%02X%02X%02X",x[1],x[2],x[3]))
+# #if (!pnt.in.poly(cbind(XC,YC),boundariesXY)) t2<-NA else t2<-apply(t1,1,function(x) sprintf("#%02X%02X%02X",x[1],x[2],x[3]))
+# 
+# if (containedInTheHorseShoe) {
+# t2<-apply(t1,1,function(x) sprintf("#%02X%02X%02X",x[1],x[2],x[3]))
+# } else {
+# if (!point.in.polygon(XC,YC,boundariesXY[,1],boundariesXY[,2])) t2<-NA else t2<-apply(t1,1,function(x) sprintf("#%02X%02X%02X",x[1],x[2],x[3]))
+# }
+# 
+#    p2[k,1]<- XC
+#    p2[k,2]<- YC
+#    p3[k]<- t2
+#    k<-k+1
+# }
+#vectorized version
+n  = rep(1:pLen3,each=pLen2)
+m  = rep(1:pLen2,pLen3)
+   XC=mx[m]
+   YC=my[n]
+   ZC=1-XC-YC
+if (is.function(conversionFunction)) {
+az<-conversionFunction(cbind(XC,YC,ZC))
+XC<-az[,1]
+YC<-az[,2]
+ZC=1-XC-YC
+}
+temp<-XYZtoRGB(mx[m],my[n],1-mx[m]-my[n])/255
+t1<-temp/apply(temp,1,max)*255
+t1<-round(t1)
+if (any(t1<0)) t1[which(t1<0)]<-1
+if (containedInTheHorseShoe) {
+t2<-apply(t1,1,function(x) sprintf("#%02X%02X%02X",x[1],x[2],x[3]))
+} else {
+boolInPolygon<-point.in.polygon(XC,YC,boundariesXY[,1],boundariesXY[,2])
+t2<-rep(NA,pLen2*pLen3)
+t2[which(boolInPolygon==1)]<-apply(t1[which(boolInPolygon==1),],1,function(x) sprintf("#%02X%02X%02X",x[1],x[2],x[3]))
+}
+p2<-cbind(XC,YC)
+p3<-t2
+if (!lNameDot) dots <- modifyList(dots, list(x=p2[,1],y=p2[,2],col=p3,type='p')) else dots <- modifyList(dots, list(x=p2[,1],y=p2[,2],col=p3))
+if (!(any(nameDots=='xlab'))) dots <- modifyList(dots, list(xlab='x'))
+if (!(any(nameDots=='ylab'))) dots <- modifyList(dots, list(ylab='y'))
+if (!(any(nameDots=='xlim'))) dots <- modifyList(dots, list(xlim=0:1))
+if (!(any(nameDots=='ylim'))) dots <- modifyList(dots, list(ylim=0:1))
+#if (!(any(nameDots=='col'))) dots <- modifyList(dots, list(col=p3))
+if (!(any(nameDots=='pch'))) dots <- modifyList(dots, list(pch=15))
+if (!(any(nameDots=='type'))) dots <- modifyList(dots, list(type='p'))
+do.call(plot, dots );par(new=TRUE)
+}
 
 
 
 
 
 
+
+LUV2LAB<-function(Luvmatrix) XYZ2Lab(Luv2XYZ(Luvmatrix))
+LAB2LUV<-function(Labmatrix) XYZ2Luv(Lab2XYZ(Labmatrix))
+XYZ2xyY <- function(XYZmatrix) {
+rSum<-apply(XYZmatrix,1,sum)
+cbind(XYZmatrix[,1]/ rSum ,XYZmatrix[,2]/ rSum,XYZmatrix[,3])
+}
+
+makeChromaticAdaptationMatrix<-function(ChromaticAdaptationAlgorithm='VonKries', illuminantSource='C', illuminantDestination='D65', observer=2, ChromaticAdaptationArray=ChromaticAdaptation, referenceWhiteArray=XYZperfectreflectingdiffuser)
+{# Chromatic Adaptation
+which(referenceWhiteArray[,"Illuminant"]==illuminantDestination)
+if (observer==2) observerPos<-2:4 else observerPos<-5:7
+coneResponseDomainSource<-ChromaticAdaptationArray[,,ChromaticAdaptationAlgorithm,'direct'] %*% 
+matrix(unlist(referenceWhiteArray[which(referenceWhiteArray[,"Illuminant"]==illuminantSource),observerPos]),3,1,byrow=TRUE)
+coneResponseDomainDestination<-ChromaticAdaptationArray[,,ChromaticAdaptationAlgorithm,'direct'] %*% 
+matrix(unlist(referenceWhiteArray[which(referenceWhiteArray[,"Illuminant"]==illuminantDestination),observerPos]),3,1,byrow=TRUE)
+d <- diag(3)
+diag(d) <- coneResponseDomainDestination/coneResponseDomainSource
+ChromaticAdaptationArray[,,ChromaticAdaptationAlgorithm,'inverse'] %*%  d   %*%  ChromaticAdaptationArray[,,ChromaticAdaptationAlgorithm,'direct'] #  adaptation matrix
+}
+
+footcandle2lux<-function(ftcl) ftcl * 10.7639104167
+# converts foot candle to Lumens/lux
+# http://www.translatorscafe.com/cafe/EN/units-converter/illumination
+footcandle2watt.sqcentimeter<-function(ftcl) ftcl*0.00000157597517082
+# converts foot candle to watts / square centimeter [w/cm^2] (at 555 nm) 
+# http://www.translatorscafe.com/cafe/EN/units-converter/illumination
+footcandle2candela.steradian.sqmeter<-function(ftcl) ftcl * 10763.9104167 
+# converts foot candle to candela steradian / square meter [cd*sr/m^2]
+# http://www.translatorscafe.com/cafe/EN/units-converter/illumination
 
 dkl2rgb <- function(dklMatrix, conversionMatrix=NA)
 { # Convert from DKL color space (Derrington, Krauskopf & Lennie) to RGB.
@@ -488,9 +965,14 @@ V <- 13*uvYmatrix[,3]*(uvYmatrix[,2]-Ry)
 cbind(U=U,V=V ,W=W )
 }
 
-XYZ2BVR <-function(XYZmatrix){# matrix for XYZ to BVR transformation
+XYZ2BVR <-function(XYZmatrix){# matrix for XYZ to Landolt BVR transformation 
 if (is.null(dim(XYZmatrix))) if (length(XYZmatrix)>2) XYZmatrix<-matrix(XYZmatrix, ncol=3,byrow=TRUE)
 XYZmatrix %*% matrix(c(0.200308,-0.017427,0.012508,0.013093,0.789019,-0.328110,-0.224010,-0.465060,1.381969),3,3,byrow=TRUE)
+}
+
+BVR2XYZ <-function(BVRmatrix){# matrix for Landolt BVR to XYZ transformation 
+if (is.null(dim(BVRmatrix))) if (length(BVRmatrix)>2) BVRmatrix<-matrix(BVRmatrix, ncol=3,byrow=TRUE)
+BVRmatrix %*% matrix(c(4.961444,0.293121,0.902866, 0.096640,1.479324,0.513487,-0.021961,0.348571,0.837347),3,3,byrow=TRUE)
 }
 
 RGB2LEF<-function(RGBmatrix)
@@ -1198,7 +1680,8 @@ sqrt(CIELMatrix[,2]^2+CIELMatrix[,3]^2)
 CIE1976hueangle<-function(CIELMatrix){
 #  CIELab and CIELuv input
 if (is.null(dim(CIELMatrix))) if (length(CIELMatrix)>2) CIELMatrix<-matrix(CIELMatrix, ncol=3,byrow=TRUE)
-atan(CIELMatrix[,3]/CIELMatrix[,2])
+#atan(CIELMatrix[,3]/CIELMatrix[,2])*180/pi
+atan2(CIELMatrix[,3],CIELMatrix[,2])*180/pi
 }
 
 CIE1976uvSaturation<-function(uvMatrix, whitepoint){
@@ -1300,10 +1783,10 @@ if (any(is.na(spectraIn))) stop('<<spectraIn>> must be a numeric array nx2')
 if (is.null(dim(spectraIn))) stop('<<spectraIn>> must be a numeric array nx2')
 if (dim(spectraIn)[2] != 2) stop('<<spectraIn>> must be a numeric array nx2')
 if (!is.numeric(spectraIn)) stop('<<spectraIn>> must be a numeric array nx2')
-if (is.na(wlIn)) wlIn<-c(min(spectraIn[,1]), max(spectraIn[,1]))
-if (is.na(wlInterval)) wlInterval<-spectraIn[2,1]-spectraIn[1,1]
-if (is.na(illuminantIn)) illuminantIn<-illuminantD65[which(illuminantD65[,1] %in% seq(min(illuminantD65[,1]), max(illuminantD65[,1]), wlInterval)),]
-if (is.na(ciexyzIn)) ciexyzIn<-ciexyz31
+if (any(is.na(wlIn))) wlIn<-c(min(spectraIn[,1]), max(spectraIn[,1]))
+if (any(is.na(wlInterval))) wlInterval<-spectraIn[2,1]-spectraIn[1,1]
+if (any(is.na(illuminantIn))) illuminantIn<-illuminantD65[which(illuminantD65[,1] %in% seq(min(illuminantD65[,1]), max(illuminantD65[,1]), wlInterval)),]
+if (any(is.na(ciexyzIn))) ciexyzIn<-ciexyz31
 wlMin<- min(wlIn)
 wlMax<- max(wlIn)
 wlSeq<-seq(wlMin,wlMax,wlInterval)
@@ -1745,9 +2228,9 @@ R<-RefWhite[which(RefWhite[["Illuminant"]]==illuminant ),]
 Rx<-unlist(R[paste('X',observer,sep='')])
 Ry<-unlist(R[paste('Y',observer,sep='')])
 Rz<-unlist(R[paste('Z',observer,sep='')])
-xr <- XYZmatrix[,1] / Rx * 100
-yr <- XYZmatrix[,2] / Ry * 100
-zr <- XYZmatrix[,3] / Rz * 100
+xr <- XYZmatrix[,1] / Rx #* 100
+yr <- XYZmatrix[,2] / Ry #* 100
+zr <- XYZmatrix[,3] / Rz #* 100
 fx <- ifelse((xr > kE) , (xr^(1.0 / 3.0)) , ((kK * xr + 16.0) / 116.0))
 fy <- ifelse((yr > kE) , (yr^(1.0 / 3.0)) , ((kK * yr + 16.0) / 116.0))
 fz <- ifelse((zr > kE) , (zr^(1.0 / 3.0)) , ((kK * zr + 16.0) / 116.0))
