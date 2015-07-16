@@ -13,11 +13,11 @@
 }
 \source{
 Planck's radiation law
-\url{http://www.fourmich/documents/specrend/specrend.c}
+\url{https://en.wikipedia.org/wiki/Planck%27s_law}
 }
 \references{
 Planck's radiation law
-\url{http://www.fourmich/documents/specrend/specrend.c}
+\url{https://en.wikipedia.org/wiki/Planck%27s_law}
 }
 \author{Jose Gama}
 \examples{

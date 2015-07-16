@@ -16,11 +16,11 @@ RefWhiteIllum=XYZperfectreflectingdiffuser) }
 }
 \source{
 Bruce Justin Lindbloom, 2013 
-\url{http:#www.brucelindbloom.com/index.html?ColorCalculator.html}
+\url{www.brucelindbloom.com/index.html?ColorCalculator.html}
 }
 \references{
 Bruce Justin Lindbloom, 2013 
-\url{http:#www.brucelindbloom.com/index.html?ColorCalculator.html}
+\url{www.brucelindbloom.com/index.html?ColorCalculator.html}
 }
 \author{Jose Gama}
 \examples{
