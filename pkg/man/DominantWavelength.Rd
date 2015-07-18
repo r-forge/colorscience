@@ -4,7 +4,7 @@
 \description{\code{DominantWavelength} Converts CMY coordinates to CMYK.
 }
 \usage{DominantWavelength(xyYmatrix, illuminant='D65',observer=2,
-RefWhiteIllum=XYZperfectreflectingdiffuser) }
+RefWhiteIllum=colorscience::XYZperfectreflectingdiffuser) }
 \arguments{
   \item{xyYmatrix}{ xyY matrix}
   \item{illuminant}{ illuminant}

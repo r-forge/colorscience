@@ -1,12 +1,14 @@
 \name{makeChromaticAdaptationMatrix}
 \alias{makeChromaticAdaptationMatrix}
 \title{Generate a Chromatic Adaptation matrix}
-\description{\code{makeChromaticAdaptationMatrix} Generates a Chromatic Adaptation matrix.
+\description{\code{makeChromaticAdaptationMatrix} Generates a Chromatic 
+Adaptation matrix.
 }
 \usage{makeChromaticAdaptationMatrix(ChromaticAdaptationAlgorithm = "VonKries",
                  illuminantSource = "C", illuminantDestination = "D65",
                  observer = 2, ChromaticAdaptationArray =
-                 ChromaticAdaptation, referenceWhiteArray = XYZperfectreflectingdiffuser) }
+                 colorscience::ChromaticAdaptation, 
+  referenceWhiteArray = colorscience::XYZperfectreflectingdiffuser) }
 \arguments{
   \item{ChromaticAdaptationAlgorithm}{ Chromatic adaptation algorithm}
   \item{illuminantSource}{ illuminant source}

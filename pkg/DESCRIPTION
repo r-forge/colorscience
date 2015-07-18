@@ -12,4 +12,3 @@ License: GPL (>= 3)
 Depends: R (>= 2.7.0), Hmisc, munsellinterpol, pracma, sp
 Enhances: png
 LazyData: yes
-LazyLoad: yes

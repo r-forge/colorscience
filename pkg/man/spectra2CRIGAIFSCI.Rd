@@ -5,7 +5,7 @@
 Index (GAI) and full spectrum index (FSCI) from spectra.
 }
 \usage{spectra2CRIGAIFSCI(SPD=NA, isoTempLinesTable=NA, CCT=NA, 
-CIETable = ciexyz31, TCS = TCSdata) }
+CIETable = colorscience::ciexyz31, TCS = colorscience::TCSdata) }
 \arguments{
   \item{SPD}{ light source spd}
   \item{isoTempLinesTable}{ Iso temperature lines table}
