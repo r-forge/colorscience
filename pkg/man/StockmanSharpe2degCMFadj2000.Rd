@@ -17,12 +17,12 @@
 \source{
 The Colour & Vision Research laboratory(CVRL)
 Institute of Ophthalmology, University College London
-\url{http://www.cvrl.org/}
+www.cvrl.org
 }
 \references{
 The Colour & Vision Research laboratory(CVRL)
 Institute of Ophthalmology, University College London
-\url{http://www.cvrl.org/}
+www.cvrl.org
 }
 \author{Jose Gama}
 \examples{
