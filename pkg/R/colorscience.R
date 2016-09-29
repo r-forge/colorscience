@@ -2228,9 +2228,9 @@ if (CCT < 5000){
 } else {
     if (CCT <= 25000){
         #load('CIEDaySn','wavelength','S0','S1','S2');
-        S0 <- daylightcomponents[["S0"]]
-        S1 <- daylightcomponents[["S1"]]
-        S2 <- daylightcomponents[["S2"]]
+        S0 <- get("daylightcomponents", envir = environment())[["S0"]]
+        S1 <- get("daylightcomponents", envir = environment())[["S1"]]
+        S2 <- get("daylightcomponents", envir = environment())[["S2"]]
         if (CCT <= 7000){
             xd = -4.6070e9 / CCT^3 + 2.9678e6 / CCT^2 + 0.09911e3 / CCT + 0.244063
         } else {
