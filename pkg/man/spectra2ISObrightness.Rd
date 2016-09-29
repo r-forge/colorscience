@@ -5,7 +5,7 @@
 (ISO brightness), R457,  ISO 2470.
 }
 \usage{spectra2ISObrightness(spectraIn=NA, wlIn=NA, 
-RSDmatrix=colorscience::ISObrightnessReflectometerRSD) }
+RSDmatrix=ISObrightnessReflectometerRSD) }
 \arguments{
   \item{spectraIn}{ spectral data}
   \item{wlIn}{ wavelength range}

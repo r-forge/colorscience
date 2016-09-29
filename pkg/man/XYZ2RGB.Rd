@@ -4,10 +4,10 @@
 \description{\code{XYZ2RGB} convert from XYZ coordinates to CIE RGB coordinates.
 }
 \usage{XYZ2RGB(XYZmatrix, illuminant = "D65", observer = 2, RefWhite
-                 = colorscience::XYZperfectreflectingdiffuser, RGBModel = "sRGB",
-                 RefWhiteRGB = colorscience::whitepointsRGB, gamma = NA,
-                 RefWhiteIllum = colorscience::XYZperfectreflectingdiffuser, CAT =
-                 "Bradford", CATarray = colorscience::ChromaticAdaptation) }
+                 = XYZperfectreflectingdiffuser, RGBModel = "sRGB",
+                 RefWhiteRGB = whitepointsRGB, gamma = NA,
+                 RefWhiteIllum = XYZperfectreflectingdiffuser, CAT =
+                 "Bradford", CATarray = ChromaticAdaptation) }
 \arguments{
   \item{XYZmatrix}{ XYZ coordinates}
   \item{illuminant}{ illuminant}

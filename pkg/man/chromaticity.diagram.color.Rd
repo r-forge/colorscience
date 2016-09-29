@@ -5,7 +5,7 @@
 \description{\code{chromaticity.diagram.color} Plots the chromaticity diagram 
 	AKA "horse shoe", as a black line, a color line or a polygon.
 }
-\usage{chromaticity.diagram.color(chromaticityCoordinates=colorscience::cccie31, 
+\usage{chromaticity.diagram.color(chromaticityCoordinates=cccie31, 
 conversionFunction=NULL, granularity=10, ...) }
 \arguments{
   \item{chromaticityCoordinates}{ chromaticity coordinates}
