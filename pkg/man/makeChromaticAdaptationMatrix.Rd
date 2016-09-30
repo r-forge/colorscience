@@ -7,7 +7,7 @@ Adaptation matrix.
 \usage{makeChromaticAdaptationMatrix(ChromaticAdaptationAlgorithm = "VonKries",
                  illuminantSource = "C", illuminantDestination = "D65",
                  observer = 2, ChromaticAdaptationArray =
-                 ChromaticAdaptation, 
+                 get("ChromaticAdaptation", envir = environment()), 
   referenceWhiteArray = get("XYZperfectreflectingdiffuser", envir = environment())) }
 \arguments{
   \item{ChromaticAdaptationAlgorithm}{ Chromatic adaptation algorithm}
