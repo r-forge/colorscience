@@ -4,10 +4,11 @@
 \description{\code{RGB2XYZ} Converts sRGB coordinates to XYZ.
 }
 \usage{RGB2XYZ(RGBmatrix, illuminant = "D65", observer = 2, RefWhite
-                 = XYZperfectreflectingdiffuser, RGBModel = "sRGB",
-                 RefWhiteRGB = whitepointsRGB, gamma = NA,
-                 RefWhiteIllum = XYZperfectreflectingdiffuser, CAT =
-                 "Bradford", CATarray = ChromaticAdaptation) }
+                 = get("XYZperfectreflectingdiffuser", envir = environment()),
+                 RGBModel = "sRGB", RefWhiteRGB = whitepointsRGB, gamma = NA,
+                 RefWhiteIllum = get("XYZperfectreflectingdiffuser",
+                 envir = environment()), CAT = "Bradford",
+                 CATarray = ChromaticAdaptation) }
 \arguments{
   \item{RGBmatrix}{ sRGB coordinates}
   \item{illuminant}{ illuminant}

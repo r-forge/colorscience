@@ -8,7 +8,7 @@ Adaptation matrix.
                  illuminantSource = "C", illuminantDestination = "D65",
                  observer = 2, ChromaticAdaptationArray =
                  ChromaticAdaptation, 
-  referenceWhiteArray = XYZperfectreflectingdiffuser) }
+  referenceWhiteArray = get("XYZperfectreflectingdiffuser", envir = environment())) }
 \arguments{
   \item{ChromaticAdaptationAlgorithm}{ Chromatic adaptation algorithm}
   \item{illuminantSource}{ illuminant source}
