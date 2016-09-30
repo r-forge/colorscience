@@ -5,10 +5,11 @@
 }
 \usage{RGB2XYZ(RGBmatrix, illuminant = "D65", observer = 2, RefWhite
                  = get("XYZperfectreflectingdiffuser", envir = environment()),
-                 RGBModel = "sRGB", RefWhiteRGB = whitepointsRGB, gamma = NA,
+                 RGBModel = "sRGB", RefWhiteRGB = get("whitepointsRGB",
+                 envir =environment()), gamma = NA,
                  RefWhiteIllum = get("XYZperfectreflectingdiffuser",
                  envir = environment()), CAT = "Bradford",
-                 CATarray = ChromaticAdaptation) }
+                 CATarray = get("ChromaticAdaptation", envir = environment())) }
 \arguments{
   \item{RGBmatrix}{ sRGB coordinates}
   \item{illuminant}{ illuminant}

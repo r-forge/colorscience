@@ -99,8 +99,8 @@ MunsellSpecToHVC <- function( MunsellSpecString )
 #       for an nx3 matrix:  data.frame with columns: HVC, ISCC-NBS Number, ISCC-NBS Name
 #
 #   the function requires these global data.frames:
-#       SystemISCCNBS
-#       CentralsISCCNBS
+#       get("SystemISCCNBS", envir = environment())
+#       get("CentralsISCCNBS", envir = environment())
 #
 #   author:  Glenn Davis
 ColorBlockFromMunsell  <-  function( HVC )
@@ -163,11 +163,11 @@ ColorBlockFromMunsell  <-  function( HVC )
     #   do 6-way comparison.  
     #   Note upper comparisons are strict, and lower comparisons are not strict.
     #   So a point on a boundary is in only 1 block.
-    mask.H  = SystemISCCNBS$Hmin <= HVC[1]  &  HVC[1] < SystemISCCNBS$Hmax
-    mask.V  = SystemISCCNBS$Vmin <= HVC[2]  &  HVC[2] < SystemISCCNBS$Vmax
-    mask.C  = SystemISCCNBS$Cmin <= HVC[3]  &  HVC[3] < SystemISCCNBS$Cmax
+    mask.H  = get("SystemISCCNBS", envir = environment())$Hmin <= HVC[1]  &  HVC[1] < get("SystemISCCNBS", envir = environment())$Hmax
+    mask.V  = get("SystemISCCNBS", envir = environment())$Vmin <= HVC[2]  &  HVC[2] < get("SystemISCCNBS", envir = environment())$Vmax
+    mask.C  = get("SystemISCCNBS", envir = environment())$Cmin <= HVC[3]  &  HVC[3] < get("SystemISCCNBS", envir = environment())$Cmax
         
-    theRow  = SystemISCCNBS[ mask.H & mask.V & mask.C, ]
+    theRow  = get("SystemISCCNBS", envir = environment())[ mask.H & mask.V & mask.C, ]
     
     if( nrow(theRow) != 1 )
         {
@@ -178,7 +178,7 @@ ColorBlockFromMunsell  <-  function( HVC )
         
     out$Number  = theRow$Number
     
-    out$Name    = CentralsISCCNBS$Name[ out$Number ] #
+    out$Name    = get("CentralsISCCNBS", envir = environment())$Name[ out$Number ] #
     
     return( out )
     }
@@ -194,7 +194,7 @@ ColorBlockFromMunsell  <-  function( HVC )
 #   return value:  TRUE or FALSE
 #
 #   author:  Glenn Davis
-CheckColorLookup <- function( DataISCCNBS=CentralsISCCNBS )#
+CheckColorLookup <- function( DataISCCNBS=get("CentralsISCCNBS", envir = environment()) )#
     {
     hvc = MunsellSpecToHVC( DataISCCNBS$MunsellSpec )
     
@@ -333,7 +333,7 @@ B <- ( xr*yg*zc - xg*yr*zc - xr*yc*zg + xc*yr*zg + xg*yc*zr - xc*yg*zr) / d
 cbind(R,G,B)
 }
 
-chromaticity.diagram<-function(chromaticityCoordinates=cccie31, conversionFunction=NULL,...){#
+chromaticity.diagram<-function(chromaticityCoordinates=get("cccie31", envir = environment()), conversionFunction=NULL,...){#
 # plot the chromaticity diagram AKA "horse shoe"
 # conversionFunction CIE1931XYZ2CIE1976uv
 pLen<-length(chromaticityCoordinates[["wlnm"]])
@@ -358,7 +358,7 @@ do.call(plot, dots ) # horseshoe
 segments(x[1],y[1],x[pLen],y[pLen]) # line
 }
 
-Maxwell.triangle<-function(primariesRGB=whitepointsRGB, conversionFunction=NULL,...){
+Maxwell.triangle<-function(primariesRGB=get("whitepointsRGB", envir = environment()), conversionFunction=NULL,...){
 # plot the Maxwell triangle
 # conversionFunction CIE1931XYZ2CIE1976uv
 x<-as.numeric(primariesRGB[1,c('xRed','xGreen','xBlue')])
@@ -381,7 +381,7 @@ if (!(any(nameDots=='ylim'))) dots <- modifyList(dots, list(ylim=c(0,0.85)))
 do.call(plot, dots )
 }
 
-chromaticity.diagram.color<-function(chromaticityCoordinates=cccie31, conversionFunction=NULL,granularity=10,...){
+chromaticity.diagram.color<-function(chromaticityCoordinates=get("cccie31", envir = environment()), conversionFunction=NULL,granularity=10,...){
 # plot the chromaticity diagram AKA "horse shoe"
 # conversionFunction CIE1931XYZ2CIE1976uv
 pLen<-length(chromaticityCoordinates[["wlnm"]])
@@ -440,7 +440,7 @@ dots <- modifyList(dots, list(col=t2))
 do.call(plot, dots )
 }
 
-Maxwell.triangle.color<-function(primariesRGB=whitepointsRGB, conversionFunction=NULL,granularity=10,...){
+Maxwell.triangle.color<-function(primariesRGB=get("whitepointsRGB", envir = environment()), conversionFunction=NULL,granularity=10,...){
 # Maxwell triangle
 # conversionFunction CIE1931XYZ2CIE1976uv
 pLen<-100
@@ -486,7 +486,7 @@ if (!(any(nameDots=='type'))) dots <- modifyList(dots, list(type='p'))
 do.call(plot, dots)
 }
 
-Maxwell.triangle.color.fill<-function(chromaticityCoordinates=cccie31, conversionFunction=NULL,granularity=10,...){
+Maxwell.triangle.color.fill<-function(chromaticityCoordinates=get("cccie31", envir = environment()), conversionFunction=NULL,granularity=10,...){
 # plot the Maxwell triangle
 # conversionFunction CIE1931XYZ2CIE1976uv
 pLen<-length(chromaticityCoordinates[["wlnm"]])
@@ -552,7 +552,7 @@ do.call(plot, dots );par(new=TRUE)
 }
 
 
-chromaticity.diagram.color.fill<-function(chromaticityCoordinates=cccie31, conversionFunction=NULL,granularity=10, conversionFunctionInv=NULL,...){
+chromaticity.diagram.color.fill<-function(chromaticityCoordinates=get("cccie31", envir = environment()), conversionFunction=NULL,granularity=10, conversionFunctionInv=NULL,...){
 # plot the chromaticity diagram AKA "horse shoe"
 # conversionFunction CIE1931XYZ2CIE1976uv
 pLen<-length(chromaticityCoordinates[["wlnm"]])
@@ -1590,7 +1590,7 @@ nmSeq<-seq(360,830,by=5)
 dWavelengthM <- nmSeq * 1.0e-3
 dWavelengthM5 <- dWavelengthM * dWavelengthM * dWavelengthM * dWavelengthM * dWavelengthM
 blackbody <- C1 / (dWavelengthM5 * 1.0e-12 * (exp(C2 / (CCTmatrix * dWavelengthM * 1.0e-3)) - 1.0))
-XYZmatrix<-blackbody * ciexyz31[nmSeq-359,c('xbar','ybar','zbar')]
+XYZmatrix<-blackbody * get("ciexyz31", envir = environment())[nmSeq-359,c('xbar','ybar','zbar')]
 XYZmatrix[,1]<-XYZmatrix[,1] / XYZmatrix[,2]
 XYZmatrix[,3]<-XYZmatrix[,3] / XYZmatrix[,2]
 XYZmatrix[,2]<-1.0
@@ -1770,10 +1770,10 @@ for (nm in seq(360, 830, by=5))
 i1 <- (nm - 360) / 5
 i2 <- ifelse(nm == 830, 0, i1 + 1)
 nm2 <- 5 * i2 + 360
-x1 <- ciexyz31[i1*5 + 1,'xbar'] / (ciexyz31[i1*5 + 1,'xbar']+ciexyz31[i1*5 + 1,'ybar']+ciexyz31[i1*5 + 1,'zbar'])
-y1 <- ciexyz31[i1*5 + 1,'ybar'] / (ciexyz31[i1*5 + 1,'xbar']+ciexyz31[i1*5 + 1,'ybar']+ciexyz31[i1*5 + 1,'zbar'])
-x2 <- ciexyz31[i2*5 + 1,'xbar'] / (ciexyz31[i2*5 + 1,'xbar']+ciexyz31[i2*5 + 1,'ybar']+ciexyz31[i2*5 + 1,'zbar'])
-y2 <- ciexyz31[i2*5 + 1,'ybar'] / (ciexyz31[i2*5 + 1,'xbar']+ciexyz31[i2*5 + 1,'ybar']+ciexyz31[i2*5 + 1,'zbar'])
+x1 <- get("ciexyz31", envir = environment())[i1*5 + 1,'xbar'] / (get("ciexyz31", envir = environment())[i1*5 + 1,'xbar']+get("ciexyz31", envir = environment())[i1*5 + 1,'ybar']+get("ciexyz31", envir = environment())[i1*5 + 1,'zbar'])
+y1 <- get("ciexyz31", envir = environment())[i1*5 + 1,'ybar'] / (get("ciexyz31", envir = environment())[i1*5 + 1,'xbar']+get("ciexyz31", envir = environment())[i1*5 + 1,'ybar']+get("ciexyz31", envir = environment())[i1*5 + 1,'zbar'])
+x2 <- get("ciexyz31", envir = environment())[i2*5 + 1,'xbar'] / (get("ciexyz31", envir = environment())[i2*5 + 1,'xbar']+get("ciexyz31", envir = environment())[i2*5 + 1,'ybar']+get("ciexyz31", envir = environment())[i2*5 + 1,'zbar'])
+y2 <- get("ciexyz31", envir = environment())[i2*5 + 1,'ybar'] / (get("ciexyz31", envir = environment())[i2*5 + 1,'xbar']+get("ciexyz31", envir = environment())[i2*5 + 1,'ybar']+get("ciexyz31", envir = environment())[i2*5 + 1,'zbar'])
 C <- x1 - xr
 d <- y1 - yr
 E <- x2 - x1
@@ -1792,7 +1792,7 @@ ifelse(tArray[1] >= 0.0, wArray[1], wArray[2])
 dominantWavelength
 }
 
-XYZ2RGB<-function(XYZmatrix,illuminant='D65',observer=2,RefWhite=get("XYZperfectreflectingdiffuser", envir = environment()),RGBModel='sRGB',RefWhiteRGB=whitepointsRGB,gamma=NA,RefWhiteIllum=get("XYZperfectreflectingdiffuser", envir = environment()),CAT='Bradford',CATarray=ChromaticAdaptation) 
+XYZ2RGB<-function(XYZmatrix,illuminant='D65',observer=2,RefWhite=get("XYZperfectreflectingdiffuser", envir = environment()),RGBModel='sRGB',RefWhiteRGB=get("whitepointsRGB", envir = environment()),gamma=NA,RefWhiteIllum=get("XYZperfectreflectingdiffuser", envir = environment()),CAT='Bradford',CATarray=get("ChromaticAdaptation", envir = environment())) 
 {# Based on: Bruce Justin Lindbloom 2013 http:#www.brucelindbloom.com/index.html?ColorCalculator.html
 if (is.null(dim(XYZmatrix))) if (length(XYZmatrix)>2) XYZmatrix<-matrix(XYZmatrix, ncol=3,byrow=TRUE)
 CATmatrix<-CATarray[, , CAT, 'direct']
@@ -1830,8 +1830,8 @@ XYZ<-apply(xyz3,1:2,function(x) Compand(x, gamma))
 XYZ
 }
 
-RGB2XYZ<-function(RGBmatrix,illuminant='D65',observer=2,RefWhite=get("XYZperfectreflectingdiffuser", envir = environment()),RGBModel='sRGB',RefWhiteRGB=whitepointsRGB,gamma=NA,
-RefWhiteIllum=get("XYZperfectreflectingdiffuser", envir = environment()),CAT='Bradford',CATarray=ChromaticAdaptation)
+RGB2XYZ<-function(RGBmatrix,illuminant='D65',observer=2,RefWhite=get("XYZperfectreflectingdiffuser", envir = environment()),RGBModel='sRGB',RefWhiteRGB=get("whitepointsRGB", envir = environment()),gamma=NA,
+RefWhiteIllum=get("XYZperfectreflectingdiffuser", envir = environment()),CAT='Bradford',CATarray=get("ChromaticAdaptation", envir = environment()))
 {# Based on: Bruce Justin Lindbloom 2013 http:#www.brucelindbloom.com/index.html?ColorCalculator.html
 if (is.null(dim(RGBmatrix))) if (length(RGBmatrix)>2) RGBmatrix<-matrix(RGBmatrix, ncol=3,byrow=TRUE)
 CATmatrix<-CATarray[, , CAT, 'direct']
@@ -1977,7 +1977,7 @@ if (dim(spectraIn)[2] != 2) stop('<<spectraIn>> must be a numeric array nx2')
 if (!is.numeric(spectraIn)) stop('<<spectraIn>> must be a numeric array nx2')
 if (any(is.na(wlIn))) wlIn<-c(min(spectraIn[,1]), max(spectraIn[,1]))
 if (any(is.na(wlInterval))) wlInterval<-spectraIn[2,1]-spectraIn[1,1]
-if (any(is.na(ciexyzIn))) ciexyzIn<-ciexyz31
+if (any(is.na(ciexyzIn))) ciexyzIn<-get("ciexyz31", envir = environment())
 wlMin<- min(wlIn)
 wlMax<- max(wlIn)
 wlSeq<-seq(wlMin,wlMax,wlInterval)
@@ -2022,8 +2022,8 @@ if (dim(spectraIn)[2] != 2) stop('<<spectraIn>> must be a numeric array nx2')
 if (!is.numeric(spectraIn)) stop('<<spectraIn>> must be a numeric array nx2')
 if (any(is.na(wlIn))) wlIn<-c(min(spectraIn[,1]), max(spectraIn[,1]))
 if (any(is.na(wlInterval))) wlInterval<-spectraIn[2,1]-spectraIn[1,1]
-if (any(is.na(illuminantIn))) illuminantIn<-illuminantD65[which(illuminantD65[,1] %in% seq(min(illuminantD65[,1]), max(illuminantD65[,1]), wlInterval)),]
-if (any(is.na(ciexyzIn))) ciexyzIn<-ciexyz31
+if (any(is.na(illuminantIn))) illuminantIn<-get("illuminantD65", envir = environment())[which(get("illuminantD65", envir = environment())[,1] %in% seq(min(get("illuminantD65", envir = environment())[,1]), max(get("illuminantD65", envir = environment())[,1]), wlInterval)),]
+if (any(is.na(ciexyzIn))) ciexyzIn<-get("ciexyz31", envir = environment())
 wlMin<- min(wlIn)
 wlMax<- max(wlIn)
 wlSeq<-seq(wlMin,wlMax,wlInterval)
@@ -2069,7 +2069,7 @@ zv<-zv/k
 c(xv,yv,zv)
 }
 
-createIsoTempLinesTable <- function(SPD=NA,CIETable = ciexyz31, TCS = TCSdata){
+createIsoTempLinesTable <- function(SPD=NA,CIETable = get("ciexyz31", envir = environment()), TCS = get("TCSdata", envir = environment())){
 # generate data for isotemperature lines needed for calculating correlated color temperature
 # Light source SPD
 # reference data values CIETable
@@ -2138,7 +2138,7 @@ cbind(T=TisotempLines, u=u, v=v, m=m) # isoTempLinesTable
 }
 
 
-spectra2CCT <- function(SPD=NA, isoTempLinesTable=NA,CIETable = ciexyz31, TCS = TCSdata){
+spectra2CCT <- function(SPD=NA, isoTempLinesTable=NA,CIETable = get("ciexyz31", envir = environment()), TCS = get("TCSdata", envir = environment())){
 # Correlated Color Temperature CCT
 if(any(is.na(isoTempLinesTable))) isoTempLinesTable=createIsoTempLinesTable(SPD)
 m <- isoTempLinesTable[,"m"]
@@ -2194,7 +2194,7 @@ if (index == 0) {
 }
 }
 
-spectra2CRIGAIFSCI <- function(SPD=NA, isoTempLinesTable=NA, CCT=NA, CIETable = ciexyz31, TCS = TCSdata){
+spectra2CRIGAIFSCI <- function(SPD=NA, isoTempLinesTable=NA, CCT=NA, CIETable = get("ciexyz31", envir = environment()), TCS = get("TCSdata", envir = environment())){
 # CRI, GAI and FSCI
 # Color Rendering Index CRI
 # Gamut Area Index GAI
@@ -2772,7 +2772,7 @@ m<-sapply(MunIn , function(x) {if (any(is.na(x))) return(NA) else {
 sidN<-gregexpr('^(\\d{1,2}\\.\\d{1,2}|\\d{1,2})(RP|YR|Y|GY|G|BG|B|PB|P|R)', x, perl=TRUE)
 h1<-substr(x,attr(sidN[[1]], "capture.start")[1,][1],attr(sidN[[1]], "capture.start")[1,][1]+attr(sidN[[1]], "capture.length")[1,][1]-1)
 hM<-substr(x,attr(sidN[[1]], "capture.start")[1,][2],attr(sidN[[1]], "capture.start")[1,][2]+attr(sidN[[1]], "capture.length")[1,][2]-1)
-h2<-which(hM == MunsellHues)
+h2<-which(hM == get("MunsellHues", envir = environment()))
 tmp <- (h2-1)*10+as.numeric(h1)
 if (tmp>=100) tmp<-tmp %% 100
 return(as.numeric(tmp))
@@ -2969,9 +2969,9 @@ yc <- A.y20*xc*xc*xc +A.y21*xc*xc +A.y22*xc +A.y23
 c(x=xc,y=yc)
 }
 
-wlnm2XYZ<-function(wavelength) c(approx(ciexyz31[,1],ciexyz31[,2],wavelength)$y,approx(ciexyz31[,1],ciexyz31[,3],wavelength)$y,approx(ciexyz31[,1],ciexyz31[,4],wavelength)$y)
+wlnm2XYZ<-function(wavelength) c(approx(get("ciexyz31", envir = environment())[,1],get("ciexyz31", envir = environment())[,2],wavelength)$y,approx(get("ciexyz31", envir = environment())[,1],get("ciexyz31", envir = environment())[,3],wavelength)$y,approx(get("ciexyz31", envir = environment())[,1],get("ciexyz31", envir = environment())[,4],wavelength)$y)
 
-wlnm2xyz<-function(wavelength) c(approx(cccie31[,1],cccie31[,2],wavelength)$y,approx(cccie31[,1],cccie31[,3],wavelength)$y,approx(cccie31[,1],cccie31[,4],wavelength)$y)
+wlnm2xyz<-function(wavelength) c(approx(get("cccie31", envir = environment())[,1],get("cccie31", envir = environment())[,2],wavelength)$y,approx(get("cccie31", envir = environment())[,1],get("cccie31", envir = environment())[,3],wavelength)$y,approx(get("cccie31", envir = environment())[,1],get("cccie31", envir = environment())[,4],wavelength)$y)
 
 emittanceblackbodyPlanck<-function(wlnm, T){
 # emittance of a black body of temperature T at a given wavelength (in metres)
@@ -3051,7 +3051,7 @@ p[i,f*(N-5)+1] <- r[N-2]
 p
 }
 
-spectra2ISObrightness<-function(spectraIn=NA, wlIn=NA, RSDmatrix=ISObrightnessReflectometerRSD){
+spectra2ISObrightness<-function(spectraIn=NA, wlIn=NA, RSDmatrix=get("ISObrightnessReflectometerRSD", envir = environment())){
 # Diffuse blue reflectance factor (ISO brightness), R457,  ISO 2470
 # ISO 2470-1 : 2009 PAPER, BOARD AND PULPS - MEASUREMENT OF DIFFUSE BLUE REFLECTANCE FACTOR, PART 1 INDOOR DAYLIGHT CONDITIONS (ISO BRIGHTNESS)
 #require(Hmisc)
