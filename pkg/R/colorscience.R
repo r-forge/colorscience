@@ -403,8 +403,6 @@ z<-1-x-y
 }
 # temp<-XYZtoRGB(X,Y,Z)/255
 # t1<-temp/max(temp)*255
-
-
 temp1<-xyz2srgb(cbind(X,Y,Z))
 temp<-temp1[["sRGB"]]/255
 t1<-temp/max(temp)*255
@@ -707,7 +705,7 @@ rSum<-apply(XYZmatrix,1,sum)
 cbind(XYZmatrix[,1]/ rSum ,XYZmatrix[,2]/ rSum,XYZmatrix[,3])
 }
 
-makeChromaticAdaptationMatrix<-function(ChromaticAdaptationAlgorithm='VonKries', illuminantSource='C', illuminantDestination='D65', observer=2, ChromaticAdaptationArray=ChromaticAdaptation, referenceWhiteArray=XYZperfectreflectingdiffuser)
+makeChromaticAdaptationMatrix<-function(ChromaticAdaptationAlgorithm='VonKries', illuminantSource='C', illuminantDestination='D65', observer=2, ChromaticAdaptationArray=ChromaticAdaptation, referenceWhiteArray=get("XYZperfectreflectingdiffuser", envir = environment()))
 {# Chromatic Adaptation
 which(referenceWhiteArray[,"Illuminant"]==illuminantDestination)
 if (observer==2) observerPos<-2:4 else observerPos<-5:7
@@ -1104,13 +1102,13 @@ cbind(elevation,azimuth,radius)
 }
 
 #CIE 1976 Luv to u', v' CIE 1976
-Luv2Yuv<-function(Luvmatrix,illuminant='D65',observer=2,RefWhite=XYZperfectreflectingdiffuser) 
+Luv2Yuv<-function(Luvmatrix,illuminant='D65',observer=2,RefWhite=get("XYZperfectreflectingdiffuser", envir = environment())) 
 {
 if (!is.matrix(Luvmatrix)) Luvmatrix <- matrix(Luvmatrix, ncol=3,byrow=TRUE)
 XYZ2Yuv(Luv2XYZ(Luvmatrix,illuminant,observer,RefWhite))
 }
 #CIE u', v' CIE 1976 to CIE 1976 Luv
-Yuv2Luv<-function(Yu.v.matrix,illuminant='D65',observer=2,RefWhite=XYZperfectreflectingdiffuser) 
+Yuv2Luv<-function(Yu.v.matrix,illuminant='D65',observer=2,RefWhite=get("XYZperfectreflectingdiffuser", envir = environment())) 
 {
 if (!is.matrix(Yu.v.matrix)) Yu.v.matrix <- matrix(Yu.v.matrix, ncol=3,byrow=TRUE)
 XYZ2Luv(Yuv2XYZ(Yu.v.matrix),illuminant,observer,RefWhite)
@@ -1186,7 +1184,7 @@ cbind(x=3*uvMatrix[,1]/(2*uvMatrix[,1]-8*uvMatrix[,2]+4), y=2*uvMatrix[,2]/(2*uv
 }
 # CIE 1964 color space
 # source: CIE 1964 color space, From Wikipedia, the free encyclopedia http://en.wikipedia.org/wiki/CIE_1964_color_space
-CIE1960UCS2CIE1964<-function(uvYmatrix,illuminant='D65',observer=2,RefWhite=XYZperfectreflectingdiffuser) 
+CIE1960UCS2CIE1964<-function(uvYmatrix,illuminant='D65',observer=2,RefWhite=get("XYZperfectreflectingdiffuser", envir = environment())) 
 {
 if (is.null(dim(uvYmatrix))) if (length(uvYmatrix)>2) uvYmatrix<-matrix(uvYmatrix, ncol=3,byrow=TRUE)
 R<-RefWhite[which(RefWhite[["Illuminant"]]==illuminant ),]
@@ -1537,7 +1535,7 @@ Y <- ( CMYKmatrix[,3] * ( 1 - CMYKmatrix[,4] ) + CMYKmatrix[,4] )
 cbind(C=C,M=M,Y=Y)
 }
 
-XYZ2HunterLab<-function(XYZmatrix,illuminant='D65',observer=2,RefWhite=XYZperfectreflectingdiffuser)
+XYZ2HunterLab<-function(XYZmatrix,illuminant='D65',observer=2,RefWhite=get("XYZperfectreflectingdiffuser", envir = environment()))
 { # adapted from: easyrgb Color conversion math and formulas http://www.easyrgb.com/
 if (is.null(dim(XYZmatrix))) if (length(XYZmatrix)>2) XYZmatrix<-matrix(XYZmatrix, ncol=3,byrow=TRUE)
 R<-RefWhite[which(RefWhite[["Illuminant"]]==illuminant ),]
@@ -1553,7 +1551,7 @@ b<-7 * ( ( yr - ( 0.847 * zr ) ) / L )
 cbind(L=L,a=a,b=b)
 }
 
-HunterLab2XYZ<-function(HunterLabmatrix,illuminant='D65',observer=2,RefWhite=XYZperfectreflectingdiffuser)
+HunterLab2XYZ<-function(HunterLabmatrix,illuminant='D65',observer=2,RefWhite=get("XYZperfectreflectingdiffuser", envir = environment()))
 { # adapted from: easyrgb Color conversion math and formulas http://www.easyrgb.com/
 if (is.null(dim(HunterLabmatrix))) if (length(HunterLabmatrix)>2) HunterLabmatrix<-matrix(HunterLabmatrix, ncol=3,byrow=TRUE)
 R<-RefWhite[which(RefWhite[["Illuminant"]]==illuminant ),]
@@ -1636,7 +1634,7 @@ LuvMatrix[,3]<-LCHuvmatrix[,2] * sin(LCHuvmatrix[,3] * pi / 180.0)
 LuvMatrix
 }
 
-DIN6167.YellownessIndex<-function(XYZmatrix,illuminant='C',observer=2,RefWhite=XYZperfectreflectingdiffuser) 
+DIN6167.YellownessIndex<-function(XYZmatrix,illuminant='C',observer=2,RefWhite=get("XYZperfectreflectingdiffuser", envir = environment())) 
 { # source: Basic equations for optical properties, 
 if (is.null(dim(XYZmatrix))) if (length(XYZmatrix)>2) XYZmatrix<-matrix(XYZmatrix, ncol=3,byrow=TRUE)
 RxRyRz<-XYZ2RxRyRz(XYZmatrix,illuminant,observer,RefWhite)
@@ -1670,7 +1668,7 @@ if (is.null(dim(XYZmatrix))) if (length(XYZmatrix)>2) XYZmatrix<-matrix(XYZmatri
 3.388*XYZmatrix[,3]-3*XYZmatrix[,2]
 }
 
-CIE.Whiteness<-function(xyYmatrix,illuminant='D65',observer=2,RefWhite=XYZperfectreflectingdiffuser)
+CIE.Whiteness<-function(xyYmatrix,illuminant='D65',observer=2,RefWhite=get("XYZperfectreflectingdiffuser", envir = environment()))
 {# strictly for D65 and 2 or 10 deg observer
 #Values bigger than 100 indicate a bluish white
 #Values smaller than 100 indicate a yellowish white
@@ -1685,7 +1683,7 @@ yr<-Rrgbwhitey / (Rrgbwhitex + Rrgbwhitey + Rrgbwhitez)
 xyYmatrix[,3]+800*(xr-xyYmatrix[,1])+1700*(yr-xyYmatrix[,2])
 }
 
-Berger59.Whiteness<-function(xyYmatrix,illuminant='C',observer=2,RefWhite=XYZperfectreflectingdiffuser)
+Berger59.Whiteness<-function(xyYmatrix,illuminant='C',observer=2,RefWhite=get("XYZperfectreflectingdiffuser", envir = environment()))
 {# Color iQC and Color iMatch Color Calculations Guide Version 8.0 July 2012
 if (is.null(dim(xyYmatrix))) if (length(xyYmatrix)>2) xyYmatrix<-matrix(xyYmatrix, ncol=3,byrow=TRUE)
 Rrgbwhitergb<-RefWhite[which(RefWhite[["Illuminant"]]==illuminant ),]
@@ -1704,7 +1702,7 @@ LabHunterMatrix[,1]-3*LabHunterMatrix[,3]+3*LabHunterMatrix[,2]
 #L, a and b are Hunter Color Coordinates
 # Color iQC and Color iMatch Color Calculations Guide Version 8.0 July 2012
 
-Taube60.Whiteness<-function(XYZmatrix,illuminant='D65',observer=2,RefWhite=XYZperfectreflectingdiffuser)
+Taube60.Whiteness<-function(XYZmatrix,illuminant='D65',observer=2,RefWhite=get("XYZperfectreflectingdiffuser", envir = environment()))
 {# Color iQC and Color iMatch Color Calculations Guide Version 8.0 July 2012
 if (is.null(dim(XYZmatrix))) if (length(XYZmatrix)>2) XYZmatrix<-matrix(XYZmatrix, ncol=3,byrow=TRUE)
 Rrgbwhitergb<-RefWhite[which(RefWhite[["Illuminant"]]==illuminant ),]
@@ -1751,7 +1749,7 @@ Txy<-x[illuminant,observer,]
 Txy[1]*(Txy[2]-xymatrix[,1])-650*(Txy[3]-xymatrix[,2])
 }
 
-DominantWavelength<-function(xyYmatrix, illuminant='D65',observer=2,RefWhiteIllum=XYZperfectreflectingdiffuser)
+DominantWavelength<-function(xyYmatrix, illuminant='D65',observer=2,RefWhiteIllum=get("XYZperfectreflectingdiffuser", envir = environment()))
 {# Based on: Bruce Justin Lindbloom 2013 http:#www.brucelindbloom.com/index.html?ColorCalculator.html
 if (is.null(dim(xyYmatrix))) if (length(xyYmatrix)>2) xyYmatrix<-matrix(xyYmatrix, ncol=3,byrow=TRUE)
 Rrgbwhitergb<-RefWhiteIllum[which(RefWhiteIllum[["Illuminant"]]==illuminant ),]
@@ -1794,7 +1792,7 @@ ifelse(tArray[1] >= 0.0, wArray[1], wArray[2])
 dominantWavelength
 }
 
-XYZ2RGB<-function(XYZmatrix,illuminant='D65',observer=2,RefWhite=XYZperfectreflectingdiffuser,RGBModel='sRGB',RefWhiteRGB=whitepointsRGB,gamma=NA,RefWhiteIllum=XYZperfectreflectingdiffuser,CAT='Bradford',CATarray=ChromaticAdaptation) 
+XYZ2RGB<-function(XYZmatrix,illuminant='D65',observer=2,RefWhite=get("XYZperfectreflectingdiffuser", envir = environment()),RGBModel='sRGB',RefWhiteRGB=whitepointsRGB,gamma=NA,RefWhiteIllum=get("XYZperfectreflectingdiffuser", envir = environment()),CAT='Bradford',CATarray=ChromaticAdaptation) 
 {# Based on: Bruce Justin Lindbloom 2013 http:#www.brucelindbloom.com/index.html?ColorCalculator.html
 if (is.null(dim(XYZmatrix))) if (length(XYZmatrix)>2) XYZmatrix<-matrix(XYZmatrix, ncol=3,byrow=TRUE)
 CATmatrix<-CATarray[, , CAT, 'direct']
@@ -1832,8 +1830,8 @@ XYZ<-apply(xyz3,1:2,function(x) Compand(x, gamma))
 XYZ
 }
 
-RGB2XYZ<-function(RGBmatrix,illuminant='D65',observer=2,RefWhite=XYZperfectreflectingdiffuser,RGBModel='sRGB',RefWhiteRGB=whitepointsRGB,gamma=NA,
-RefWhiteIllum=XYZperfectreflectingdiffuser,CAT='Bradford',CATarray=ChromaticAdaptation)
+RGB2XYZ<-function(RGBmatrix,illuminant='D65',observer=2,RefWhite=get("XYZperfectreflectingdiffuser", envir = environment()),RGBModel='sRGB',RefWhiteRGB=whitepointsRGB,gamma=NA,
+RefWhiteIllum=get("XYZperfectreflectingdiffuser", envir = environment()),CAT='Bradford',CATarray=ChromaticAdaptation)
 {# Based on: Bruce Justin Lindbloom 2013 http:#www.brucelindbloom.com/index.html?ColorCalculator.html
 if (is.null(dim(RGBmatrix))) if (length(RGBmatrix)>2) RGBmatrix<-matrix(RGBmatrix, ncol=3,byrow=TRUE)
 CATmatrix<-CATarray[, , CAT, 'direct']
@@ -2458,7 +2456,7 @@ sin((k * (Y ^ (1 / 3)) + 1)/ 180 * pi) + m / Y * sin((n * (Y - 2))/ 180 * pi) + 
 V
 }
 
-XYZ2Lab <- function(XYZmatrix,illuminant='D65',observer=2,RefWhite=XYZperfectreflectingdiffuser)
+XYZ2Lab <- function(XYZmatrix,illuminant='D65',observer=2,RefWhite=get("XYZperfectreflectingdiffuser", envir = environment()))
 {# Based on: Bruce Justin Lindbloom 2013 http:#www.brucelindbloom.com/index.html?ColorCalculator.html
 if (!is.matrix(XYZmatrix)) XYZmatrix<-matrix(XYZmatrix,ncol=3,byrow=TRUE)
 kE <- 216.0 / 24389.0
@@ -2479,7 +2477,7 @@ b <- 200.0 * (fy - fz)
 cbind(L=L,a=a,b=b)
 }
 
-XYZ2Luv <- function(XYZmatrix,illuminant='D65',observer=2,RefWhite=XYZperfectreflectingdiffuser)
+XYZ2Luv <- function(XYZmatrix,illuminant='D65',observer=2,RefWhite=get("XYZperfectreflectingdiffuser", envir = environment()))
 {# Based on: Bruce Justin Lindbloom 2013 http:#www.brucelindbloom.com/index.html?ColorCalculator.html
 if (!is.matrix(XYZmatrix)) XYZmatrix<-matrix(XYZmatrix,ncol=3,byrow=TRUE)
 kE <- 216.0 / 24389.0
@@ -2513,7 +2511,7 @@ colnames(XYZ)<-c('X','Y','Z')
 XYZ
 }
 
-XYZ2xyY<-function(XYZmatrix,illuminant='D65',observer=2,RefWhite=XYZperfectreflectingdiffuser)
+XYZ2xyY<-function(XYZmatrix,illuminant='D65',observer=2,RefWhite=get("XYZperfectreflectingdiffuser", envir = environment()))
 {# Based on: Bruce Justin Lindbloom 2013 http:#www.brucelindbloom.com/index.html?ColorCalculator.html
 if (!is.matrix(XYZmatrix)) XYZmatrix<-matrix(XYZmatrix,ncol=3,byrow=TRUE)
 Den <- rowSums(XYZmatrix)
@@ -2532,7 +2530,7 @@ xyYmatrix[-DenG0,2]<-y
 xyYmatrix
 }
 
-Lab2XYZ<-function(Labmatrix,illuminant='D65',observer=2,RefWhite=XYZperfectreflectingdiffuser)
+Lab2XYZ<-function(Labmatrix,illuminant='D65',observer=2,RefWhite=get("XYZperfectreflectingdiffuser", envir = environment()))
 {# Based on: Bruce Justin Lindbloom 2013 http:#www.brucelindbloom.com/index.html?ColorCalculator.html
 if (!is.matrix(Labmatrix)) Labmatrix<-matrix(Labmatrix,ncol=3,byrow=TRUE)
 L<-Labmatrix[,1]
@@ -2558,7 +2556,7 @@ Z <- zr * Rz
 cbind(X=X,Y=Y,Z=Z)
 }
 
-Luv2XYZ<-function(Luvmatrix,illuminant='D65',observer=2,RefWhite=XYZperfectreflectingdiffuser)
+Luv2XYZ<-function(Luvmatrix,illuminant='D65',observer=2,RefWhite=get("XYZperfectreflectingdiffuser", envir = environment()))
 {# Based on: Bruce Justin Lindbloom 2013 http:#www.brucelindbloom.com/index.html?ColorCalculator.html
 if (!is.matrix(Luvmatrix)) Luvmatrix<-matrix(Luvmatrix,ncol=3,byrow=TRUE)
 L<-Luvmatrix[,1]
@@ -3070,7 +3068,7 @@ xtrapolated[which(xtrapolated<0)]<-0
 sum(matrix(xtrapolated,ncol=1) * RSDmatrix[,2]) / sum(RSDmatrix[,2])
 }
 
-RxRyRz2XYZ<-function(RxRyRzmatrix=NA,illuminant='C', observer=2,RefWhite=XYZperfectreflectingdiffuser){
+RxRyRz2XYZ<-function(RxRyRzmatrix=NA,illuminant='C', observer=2,RefWhite=get("XYZperfectreflectingdiffuser", envir = environment())){
 # convert from three filter measurements (reflectance factors) to XYZ
 if (is.null(dim(RxRyRzmatrix))) if (length(RxRyRzmatrix)>2) RxRyRzmatrix<-matrix(RxRyRzmatrix, ncol=3,byrow=TRUE)
 R<-RefWhite[which(RefWhite[["Illuminant"]]==illuminant ),]
@@ -3082,7 +3080,7 @@ if (illuminant=='D65' & observer==10) return(cbind(X = 76.841 * RxRyRzmatrix[,1]
 stop('<<illuminant>> and <<observer>> must be C/2 or D65/10')
 }
 
-XYZ2RxRyRz<-function(XYZmatrix=NA,illuminant='C', observer=2,RefWhite=XYZperfectreflectingdiffuser){
+XYZ2RxRyRz<-function(XYZmatrix=NA,illuminant='C', observer=2,RefWhite=get("XYZperfectreflectingdiffuser", envir = environment())){
 # convert from XYZ to three filter measurements (reflectance factors)
 if (is.null(dim(XYZmatrix))) if (length(XYZmatrix)>2) XYZmatrix<-matrix(XYZmatrix, ncol=3,byrow=TRUE)
 R<-RefWhite[which(RefWhite[["Illuminant"]]==illuminant ),]
