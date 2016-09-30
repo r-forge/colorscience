@@ -705,7 +705,8 @@ rSum<-apply(XYZmatrix,1,sum)
 cbind(XYZmatrix[,1]/ rSum ,XYZmatrix[,2]/ rSum,XYZmatrix[,3])
 }
 
-makeChromaticAdaptationMatrix<-function(ChromaticAdaptationAlgorithm='VonKries', illuminantSource='C', illuminantDestination='D65', observer=2, ChromaticAdaptationArray=ChromaticAdaptation, referenceWhiteArray=get("XYZperfectreflectingdiffuser", envir = environment()))
+makeChromaticAdaptationMatrix<-function(ChromaticAdaptationAlgorithm='VonKries', illuminantSource='C', illuminantDestination='D65', 
+observer=2, ChromaticAdaptationArray=get("ChromaticAdaptation", envir = environment()), referenceWhiteArray=get("XYZperfectreflectingdiffuser", envir = environment()))
 {# Chromatic Adaptation
 which(referenceWhiteArray[,"Illuminant"]==illuminantDestination)
 if (observer==2) observerPos<-2:4 else observerPos<-5:7
