@@ -1,7 +1,7 @@
 Package: colorscience
 Type: Package
 Title: Color Science Methods and Data
-Version: 1.0.3
+Version: 1.0.4
 Encoding: UTF-8
 Maintainer: Jose Gama <rxprtgama@gmail.com>
 Authors@R: c(person(given = "Jose", family = "Gama", role = c("aut","cre"),email = "rxprtgama@gmail.com"))
